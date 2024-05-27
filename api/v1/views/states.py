@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Handle RESTFul API actions."""
 
-from flask import jsonify, request
+from flask import abort, jsonify, request
 
 from api.v1.views import app_views
 from models import storage
@@ -11,7 +11,9 @@ from models.state import State
 @app_views.route('/states/', methods=['GET'], strict_slashes=False)
 def get_all_states():
     """Return a state."""
-    states = [state for state in storage.all("State").values().to_dict()]
+    states = []
+    for state in storage.all("State").values():
+        states.append(state.to_dict())
     return jsonify(states)
 
 
@@ -52,7 +54,7 @@ def update_state(state_id):
     """Update a state given state id."""
     state = storage.get("State", state_id)
     if state is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     if not request.json:
         return jsonify({"error": "Not a JSON"}), 400
     for key, value in request.json.items():
