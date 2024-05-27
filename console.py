@@ -96,7 +96,7 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] in classes:
             if len(args) > 1:
                 key = args[0] + "." + args[1]
-        to       if key in models.storage.all():
+                if key in models.storage.all():
                     models.storage.all().pop(key)
                     models.storage.save()
                 else:
