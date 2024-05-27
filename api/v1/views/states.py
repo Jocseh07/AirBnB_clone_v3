@@ -12,7 +12,7 @@ from models.state import State
 def get_all_states():
     """Return a state."""
     states = []
-    for state in storage.all('State').values():
+    for state in storage.all(State).values():
         states.append(state.to_dict())
     return jsonify(states)
 
@@ -20,7 +20,7 @@ def get_all_states():
 @app_views.route('states/<state_id>', methods=['GET'], strict_slashes=False)
 def get_state(state_id):
     """Return a state given state id."""
-    state = storage.get('State', state_id)
+    state = storage.get(State, state_id)
     if state is None:
         return jsonify({"error": "Not found"}), 404
     return jsonify(state.to_dict())
@@ -30,7 +30,7 @@ def get_state(state_id):
                   strict_slashes=False)
 def del_state(state_id):
     """Delete a state given state id."""
-    state = storage.get('State', state_id)
+    state = storage.get(State, state_id)
     if state is None:
         return jsonify({"error": "Not found"}), 404
     storage.delete(state)
