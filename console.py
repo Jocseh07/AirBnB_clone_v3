@@ -2,7 +2,9 @@
 """ console """
 
 import cmd
+import shlex  # for splitting the line along spaces except in double quotes
 from datetime import datetime
+
 import models
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -11,7 +13,6 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-import shlex  # for splitting the line along spaces except in double quotes
 
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -95,7 +96,7 @@ class HBNBCommand(cmd.Cmd):
         elif args[0] in classes:
             if len(args) > 1:
                 key = args[0] + "." + args[1]
-                if key in models.storage.all():
+        to       if key in models.storage.all():
                     models.storage.all().pop(key)
                     models.storage.save()
                 else:
