@@ -46,7 +46,6 @@ def create_state():
     try:
         data = request.get_json()
     except Exception as e:
-        print(e)
         return jsonify({"error": "Not a JSON"}), 400
     if data is None or data == {}:
         return jsonify({"error": "Not a JSON"}), 400
@@ -60,12 +59,11 @@ def create_state():
 @app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def update_state(state_id):
     """Update a state given state id."""
-    try:
-        data = request.get_json()
-    except Exception as e:
-        print(e)
-        return jsonify({"error": "Not a JSON"}), 400
-    if data is None or data == {}:
+    state = storage.get(State, state_id)
+    if state is None:
+        abort(404)
+    data = request.get_json()
+    if not data:
         return jsonify({"error": "Not a JSON"}), 400
     for key, value in data.items():
         if key not in ['id', 'created_at', 'updated_at']:
