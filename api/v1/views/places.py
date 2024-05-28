@@ -6,6 +6,7 @@ from flask import abort, jsonify, request
 from api.v1.views import app_views
 from models import storage
 from models.city import City
+from models.user import User
 from models.place import Place
 
 
@@ -50,7 +51,8 @@ def del_place(place_id):
     return jsonify({}), 200
 
 
-@app_views.route('cities/<city_id>/places', methods=['POST'], strict_slashes=False)
+@app_views.route('cities/<city_id>/places',
+                 methods=['POST'], strict_slashes=False)
 def create_place(city_id):
     """Create a new place."""
     try:
@@ -64,6 +66,10 @@ def create_place(city_id):
         return jsonify({"error": "Not found"}), 404
     if 'user_id' not in data:
         return jsonify({"error": "Missing user_id"}), 400
+    user_id = data['user_id']
+    user = storage.get(User, user_id)
+    if user is None or user == {}:
+        return jsonify({"error": "Not found"}), 404
     if 'name' not in data:
         return jsonify({"error": "Missing name"}), 400
     data['city_id'] = city_id
