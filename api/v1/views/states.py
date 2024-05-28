@@ -62,7 +62,10 @@ def update_state(state_id):
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
-    data = request.get_json()
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return jsonify({"error": "Not a JSON"}), 400
     if not data:
         return jsonify({"error": "Not a JSON"}), 400
     for key, value in data.items():
