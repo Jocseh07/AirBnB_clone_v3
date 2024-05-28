@@ -53,6 +53,10 @@ def del_city(city_id):
                  methods=['POST'], strict_slashes=False)
 def create_city(state_id):
     """Create a new city."""
+    state = storage.get(State, state_id)
+    if state is None or state == {}:
+        return jsonify({"error": "Not found"}), 404
+
     try:
         data = request.get_json()
     except Exception as e:
