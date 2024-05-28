@@ -50,12 +50,20 @@ def del_place(place_id):
     return jsonify({}), 200
 
 
-@app_views.route('/<city_id>/places', methods=['POST'], strict_slashes=False)
+@app_views.route('cities/<city_id>/places', methods=['POST'], strict_slashes=False)
 def create_place(city_id):
     """Create a new place."""
-    data = request.get_json()
-    if not data:
+    try:
+        data = request.get_json()
+    except Exception as e:
         return jsonify({"error": "Not a JSON"}), 400
+    if not data or data == {}:
+        return jsonify({"error": "Not a JSON"}), 400
+    city = storage.get(City, city_id)
+    if city is None or city == {}:
+        return jsonify({"error": "Not found"}), 404
+    if 'user_id' not in data:
+        return jsonify({"error": "Missing user_id"}), 400
     if 'name' not in data:
         return jsonify({"error": "Missing name"}), 400
     data['city_id'] = city_id
