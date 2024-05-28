@@ -47,10 +47,12 @@ def create_user():
         data = request.get_json()
     except Exception as e:
         return jsonify({"error": "Not a JSON"}), 400
-    if not data:
+    if not data or data == {}:
         return jsonify({"error": "Not a JSON"}), 400
-    if 'name' not in data:
-        return jsonify({"error": "Missing name"}), 400
+    if 'email' not in data:
+        return jsonify({"error": "Missing email"}), 400
+    if 'password' not in data:
+        return jsonify({"error": "Missing password"}), 400
     new = User(**data)
     new.save()
     return jsonify(new.to_dict()), 201
