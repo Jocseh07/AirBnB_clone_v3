@@ -43,7 +43,7 @@ def del_place(place_id):
     if place_id is None:
         return jsonify({"error": "Not found"}), 404
     place = storage.get(Place, place_id)
-    if place is None:
+    if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
     storage.delete(place)
     storage.save()
