@@ -43,10 +43,13 @@ def del_user(user_id):
 @app_views.route('/users', methods=['POST'], strict_slashes=False)
 def create_user():
     """Create a new user."""
-    data = request.get_json()
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return jsonify({"error": "Not a JSON"}), 400
     if not data:
         return jsonify({"error": "Not a JSON"}), 400
-    if 'name' not in data:
+    if 'first_name' not in data:
         return jsonify({"error": "Missing name"}), 400
     new = User(**data)
     new.save()
