@@ -13,7 +13,7 @@ from models.city import City
 def get_cities(state_id):
     """Return cities in a state."""
     state = storage.get("State", state_id)
-    if state is None:
+    if state is None or state == {}:
         return jsonify({"error": "Not found"}), 404
     cities = storage.all(City)
     if cities is None or cities == {}:
@@ -58,7 +58,7 @@ def create_city(state_id):
         return jsonify({"error": "Not a JSON"}), 400
     if 'name' not in data:
         return jsonify({"error": "Missing name"}), 400
-    data['state_id'] = state_id
+    print(data)
     new = City(**data)
     new.save()
     return jsonify(new.to_dict()), 201
