@@ -82,8 +82,8 @@ class FileStorage:
         if cls is None or id is None:
             return None
         total = self.all(cls)
-        for key, value in total:
-            if id is value:
+        for key in total:
+            if id in key:
                 return total[key]
 
     def count(self, cls=None):
