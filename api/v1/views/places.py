@@ -5,6 +5,7 @@ from flask import abort, jsonify, request
 
 from api.v1.views import app_views
 from models import storage
+from models.city import City
 from models.place import Place
 
 
@@ -12,6 +13,9 @@ from models.place import Place
                  methods=['GET'], strict_slashes=False)
 def get_places(city_id):
     """Return places in a city."""
+    city = storage.get(City, city_id)
+    if city is None or city == {}:
+        return jsonify({"error": "Not found"}), 404
     places = storage.all(Place)
     if places is None:
         return jsonify({"error": "Not found"}), 404
