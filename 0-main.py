@@ -1,11 +1,13 @@
 #!/usr/bin/python3
-""" Test .get()
+"""Testing file
 """
-from models import storage
-from models.state import State
+import json
 
-state = storage.get(State, "Doesn't exist")
-if state is None:
-    print("None", end="")
-else:
-    print("Get shouldn't return an object if the ID doesn't exist", end="")
+import requests
+
+if __name__ == "__main__":
+    """ POST /api/v1/states
+    """
+    r = requests.post("http://0.0.0.0:5050/api/v1/states/", data={
+                      'name': "NewState"}, headers={'Content-Type': "application/x-www-form-urlencoded"})
+    print(r.status_code)

@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 """Handle RESTFul API actions."""
 
+from sys import exception
+
 from flask import abort, jsonify, request
 
 from api.v1.views import app_views
@@ -43,8 +45,13 @@ def del_state(state_id):
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
     """Create a new state."""
-    data = request.get_json()
-    if not data:
+    try:
+        data = request.get_json()
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Not a JSON"}), 400
+    if data is None or data == {}:
+        print("no data")
         return jsonify({"error": "Not a JSON"}), 400
     if 'name' not in data:
         return jsonify({"error": "Missing name"}), 400
