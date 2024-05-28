@@ -6,16 +6,19 @@ from flask import abort, jsonify, request
 from api.v1.views import app_views
 from models import storage
 from models.place import Place
-from models.user import User
 from models.review import Review
+from models.user import User
 
 
 @app_views.route('places/<place_id>/reviews',
                  methods=['GET'], strict_slashes=False)
 def get_reviews(place_id):
     """Return reviews in a place."""
+    print(place_id)
     place = storage.get(Place, place_id)
-    if place is None or place == {}:
+
+    print(place)
+    if not place or place == {}:
         return jsonify({"error": "Not found"}), 404
     reviews = storage.all(Review)
     if reviews is None:
@@ -61,8 +64,7 @@ def create_review(place_id):
         return jsonify({"error": "Not a JSON"}), 400
     if not data or data == {}:
         return jsonify({"error": "Not a JSON"}), 400
-    place = storage.get(Place, place_id)
-    if place is None or place == {}:
+    f if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
     if 'user_id' not in data:
         return jsonify({"error": "Missing user_id"}), 400
