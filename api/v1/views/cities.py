@@ -13,7 +13,7 @@ from models.city import City
 def get_cities(state_id):
     """Return cities in a state."""
     cities = storage.all(City)
-    if cities is None:
+    if cities is None or cities == {}:
         return jsonify({"error": "Not found"}), 404
     total = []
     for city in cities.values():
