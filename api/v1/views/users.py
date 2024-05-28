@@ -50,7 +50,6 @@ def create_user():
     if not data:
         return jsonify({"error": "Not a JSON"}), 400
     if 'name' not in data or 'first_name' not in data:
-        print('first_name' in data)
         return jsonify({"error": "Missing name"}), 400
     new = User(**data)
     new.save()
