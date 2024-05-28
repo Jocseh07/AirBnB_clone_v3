@@ -12,6 +12,9 @@ from models.city import City
                  methods=['GET'], strict_slashes=False)
 def get_cities(state_id):
     """Return cities in a state."""
+    state = storage.get("State", state_id)
+    if state is None:
+        return jsonify({"error": "Not found"}), 404
     cities = storage.all(City)
     if cities is None or cities == {}:
         return jsonify({"error": "Not found"}), 404
