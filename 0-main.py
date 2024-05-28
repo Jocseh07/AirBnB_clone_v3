@@ -10,18 +10,12 @@ if __name__ == "__main__":
     """
     r = requests.get("http://0.0.0.0:5050/api/v1/states")
     r_j = r.json()
-    print(r_j)
 
     state_id = None
     for state_j in r_j:
         rs = requests.get(
             "http://0.0.0.0:5050/api/v1/states/{}/cities".format(state_j.get('id')))
-        print(state_j.get('id'))
-        print("******")
-        print(rs)
         rs_j = rs.json()
-        print("######")
-        print(rs_j)
         if len(rs_j) != 0:
             state_id = state_j.get('id')
             break
@@ -33,7 +27,7 @@ if __name__ == "__main__":
     """
     r = requests.post("http://0.0.0.0:5050/api/v1/states/{}/cities/".format(state_id),
                       data=json.dumps({'name': "NewCity"}), headers={'Content-Type': "application/json"})
-    print(r.status_code)
+    print(r)
     r_j = r.json()
     print(r_j.get('id') is None)
     print(r_j.get('name') == "NewCity")

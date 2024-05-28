@@ -6,13 +6,14 @@ from flask import abort, jsonify, request
 from api.v1.views import app_views
 from models import storage
 from models.city import City
+from models.state import State
 
 
 @app_views.route('states/<state_id>/cities',
                  methods=['GET'], strict_slashes=False)
 def get_cities(state_id):
     """Return cities in a state."""
-    state = storage.get("State", state_id)
+    state = storage.get(State, state_id)
     if state is None or state == {}:
         return jsonify({"error": "Not found"}), 404
     cities = storage.all(City)
@@ -20,9 +21,8 @@ def get_cities(state_id):
         return jsonify({"error": "Not found"}), 404
     total = []
     for city in cities.values():
-        city = city.to_dict()
-        if city['state_id'] == state_id:
-            total.append(city)
+        if city.state_id == state_id:
+            total.append(city.to_dict())
     return jsonify(total)
 
 
@@ -49,7 +49,7 @@ def del_city(city_id):
     return jsonify({}), 200
 
 
-@app_views.route('/<state_id>/cities', methods=['POST'], strict_slashes=False)
+@app_views.route('states/<state_id>/cities', methods=['POST'], strict_slashes=False)
 def create_city(state_id):
     """Create a new city."""
     try:
@@ -58,8 +58,10 @@ def create_city(state_id):
         return jsonify({"error": "Not a JSON"}), 400
     if 'name' not in data:
         return jsonify({"error": "Missing name"}), 400
-    print(data)
-    new = City(**data)
+    new_data = (data.copy())
+    new_data['state_id'] = state_id
+    print(new_data)
+    new = City(**new_data)
     new.save()
     return jsonify(new.to_dict()), 201
 
