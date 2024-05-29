@@ -14,11 +14,8 @@ from models.user import User
                  methods=['GET'], strict_slashes=False)
 def get_reviews(place_id):
     """Return reviews in a place."""
-    print(place_id)
     place = storage.get(Place, place_id)
-
-    print(place)
-    if not place or place == {}:
+    if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
     reviews = storage.all(Review)
     if reviews is None:
@@ -64,7 +61,8 @@ def create_review(place_id):
         return jsonify({"error": "Not a JSON"}), 400
     if not data or data == {}:
         return jsonify({"error": "Not a JSON"}), 400
-    f if place is None or place == {}:
+    place = storage.get(Place, place_id)
+    if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
     if 'user_id' not in data:
         return jsonify({"error": "Missing user_id"}), 400
