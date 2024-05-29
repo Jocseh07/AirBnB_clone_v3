@@ -7,6 +7,7 @@ from api.v1.views import app_views
 from models import storage
 from models.place import Place
 from models.review import Review
+from models.user import User
 
 
 @app_views.route('places/<place_id>/reviews',
@@ -42,7 +43,7 @@ def del_review(review_id):
     if review_id is None:
         return jsonify({"error": "Not found"}), 404
     review = storage.get(Review, review_id)
-    if review is None:
+    if review is None or review == {}:
         return jsonify({"error": "Not found"}), 404
     storage.delete(review)
     storage.save()
@@ -56,13 +57,17 @@ def create_review(place_id):
     place = storage.get(Place, place_id)
     if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
-
     try:
         data = request.get_json()
     except Exception as e:
         return jsonify({"error": "Not a JSON"}), 400
-    if 'name' not in data:
-        return jsonify({"error": "Missing name"}), 400
+    if 'user_id' not in data:
+        return jsonify({"error": "Missing user_id"}), 400
+    user = storage.get(User, data['user_id'])
+    if user is None or user == {}:
+        return jsonify({"error": "Not found"}), 404
+    if 'text' not in data:
+        return jsonify({"error": "Missing text"}), 400
     new_data = (data.copy())
     new_data['place_id'] = place_id
     print(new_data)
