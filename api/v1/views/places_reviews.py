@@ -49,11 +49,16 @@ def del_review(review_id):
 @app_views.route('/<place_id>/reviews', methods=['POST'], strict_slashes=False)
 def create_review(place_id):
     """Create a new review."""
-    data = request.get_json()
-    if not data:
+    try:
+        data = request.get_json()
+    except Exception as e:
         return jsonify({"error": "Not a JSON"}), 400
-    if 'name' not in data:
-        return jsonify({"error": "Missing name"}), 400
+    if not data or data == {}:
+        return jsonify({"error": "Not a JSON"}), 400
+    if 'user_id' not in data:
+        return jsonify({"error": "Missing user_id"}), 400
+    if 'text' not in data:
+        return jsonify({"error": "Missing text"}), 400
     data['place_id'] = place_id
     new = Review(**data)
     new.save()
@@ -66,11 +71,15 @@ def update_review(review_id):
     review = storage.get(Review, review_id)
     if review is None:
         abort(404)
-    data = request.get_json()
+    try:
+        data = request.get_json()
+    except Exception as e:
+        return jsonify({"error": "Not a JSON"}), 400
     if not data:
         return jsonify({"error": "Not a JSON"}), 400
     for key, value in data.items():
-        if key not in ['id', 'created_at', 'updated_at', 'user_id', 'place_id']:
+        if key not in ['id', 'created_at', 'updated_at',
+                       'user_id', 'place_id']:
             setattr(review, key, value)
     review.save()
     return jsonify(review.to_dict()), 200
