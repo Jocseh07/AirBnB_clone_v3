@@ -40,35 +40,29 @@ if __name__ == "__main__":
     if city_id is None:
         print("City without places not found")
 
-    """ get place with reviews
+    """ get place 
     """
     r = requests.get(
         "http://0.0.0.0:5050/api/v1/cities/{}/places".format(city_id))
+    print("****")
+    print(city_id)
+    print("****")
+    print(r_j)
+    print("****")
+    print(r.status_code)
+    print("****")
+    print(r.json())
     r_j = r.json()
-    place_id = None
-    for place_j in r_j:
-        print(place_j)
-        rp = requests.get(
-            "http://0.0.0.0:5050/api/v1/places/{}/reviews".format(place_j.get('id')))
-        rp_j = rp.json()
-        if len(rp_j) != 0:
-            place_id = place_j.get('id')
-            break
+    place_id = r_j[0].get('id')
 
-    if place_id is None:
-        print("Place with reviews not found")
-
-    """ Fetch reviews
+    """ Get user
     """
-    r = requests.get(
-        "http://0.0.0.0:5050/api/v1/places/{}/reviews".format(place_id))
+    r = requests.get("http://0.0.0.0:5050/api/v1/users")
     r_j = r.json()
-    print(type(r_j))
-    print(len(r_j))
-    for review_j in r_j:
-        if review_j.get('text') in ["review0", "review1", "review2", "review3"]:
-            print("OK")
-        else:
-            print("Missing: {}".format(review_j.get('text')))
-        if review_j.get('id') is None:
-            print("Missing ID for Review: {}".format(review_j.get('text')))
+    user_id = r_j[0].get('id')
+
+    """ POST /api/v1/places/<place_id>/reviews
+    """
+    r = requests.post("http://0.0.0.0:5050/api/v1/places/{}/reviews/".format(place_id), data={
+                      'user_id': user_id, 'text': "NewReview"}, headers={'Content-Type': "application/x-www-form-urlencoded"})
+    print(r.status_code)

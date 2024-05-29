@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 """Handle RESTFul API actions."""
 
@@ -5,56 +6,52 @@ from flask import abort, jsonify, request
 
 from api.v1.views import app_views
 from models import storage
+from models.amenity import Amenity
 from models.place import Place
-from models.review import Review
 from models.user import User
 
 
-@app_views.route('places/<place_id>/reviews',
+@app_views.route('places/<place_id>/amenities',
                  methods=['GET'], strict_slashes=False)
-def get_reviews(place_id):
-    """Return reviews in a place."""
+def get_amenities(place_id):
+    """Return amenities in a place."""
     place = storage.get(Place, place_id)
     if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
-    reviews = storage.all(Review)
-    if reviews is None:
+    amenities = storage.all(Amenity)
+    if amenities is None:
         return jsonify({"error": "Not found"}), 404
     total = []
-    for review in reviews.values():
-        review = review.to_dict()
-        if review['place_id'] == place_id:
-            total.append(review)
+    for amenity in amenities.values():
+        amenity = amenity.to_dict()
+        if amenity['place_id'] == place_id:
+            total.append(amenity)
     return jsonify(total)
 
 
-@app_views.route('reviews/<review_id>', methods=['GET'], strict_slashes=False)
-def get_review(review_id):
-    """Return a review given review id."""
-    review = storage.get(Review, review_id)
-    if review is None:
-        return jsonify({"error": "Not found"}), 404
-    return jsonify(review.to_dict())
-
-
-@app_views.route('/reviews/<review_id>', methods=['DELETE'],
+@app_views.route('places/<place_id>/amenities/<amenity_id>', methods=['DELETE'],
                  strict_slashes=False)
-def del_review(review_id):
-    """Delete a review given review id."""
-    if review_id is None:
+def del_amenity(place_id, amenity_id):
+    """Delete a amenity given amenity id."""
+    place = storage.get(Place, place_id)
+    if place is None or place == {}:
         return jsonify({"error": "Not found"}), 404
-    review = storage.get(Review, review_id)
-    if review is None or review == {}:
+    if amenity_id is None:
         return jsonify({"error": "Not found"}), 404
-    storage.delete(review)
+    amenity = storage.get(Amenity, amenity_id)
+    if amenity is None or amenity == {}:
+        return jsonify({"error": "Not found"}), 404
+    print(place)
+    print(amenity)
+    storage.delete(amenity)
     storage.save()
     return jsonify({}), 200
 
 
-@app_views.route('places/<place_id>/reviews',
+@app_views.route('places/<place_id>/amenities',
                  methods=['POST'], strict_slashes=False)
-def create_review(place_id):
-    """Create a new review."""
+def create_amenity(place_id):
+    """Create a new amenity."""
     try:
         data = request.get_json()
     except Exception as e:
@@ -73,22 +70,22 @@ def create_review(place_id):
     if 'name' not in data:
         return jsonify({"error": "Missing name"}), 400
     data['place_id'] = place_id
-    new = Review(**data)
+    new = Amenity(**data)
     new.save()
     return jsonify(new.to_dict()), 201
 
 
-@app_views.route('/reviews/<review_id>', methods=['PUT'], strict_slashes=False)
-def update_review(review_id):
-    """Update a review given review id."""
-    review = storage.get(Review, review_id)
-    if review is None:
+@app_views.route('/amenities/<amenity_id>', methods=['PUT'], strict_slashes=False)
+def update_amenity(amenity_id):
+    """Update a amenity given amenity id."""
+    amenity = storage.get(Amenity, amenity_id)
+    if amenity is None:
         abort(404)
     data = request.get_json()
     if not data:
         return jsonify({"error": "Not a JSON"}), 400
     for key, value in data.items():
         if key not in ['id', 'created_at', 'updated_at']:
-            setattr(review, key, value)
-    review.save()
-    return jsonify(review.to_dict()), 200
+            setattr(amenity, key, value)
+    amenity.save()
+    return jsonify(amenity.to_dict()), 200
