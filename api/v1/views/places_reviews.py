@@ -5,6 +5,7 @@ from flask import abort, jsonify, request
 
 from api.v1.views import app_views
 from models import storage
+from models.place import Place
 from models.review import Review
 
 
@@ -12,14 +13,16 @@ from models.review import Review
                  methods=['GET'], strict_slashes=False)
 def get_reviews(place_id):
     """Return reviews in a place."""
+    place = storage.get(Place, place_id)
+    if place is None or place == {}:
+        return jsonify({"error": "Not found"}), 404
     reviews = storage.all(Review)
-    if reviews is None:
+    if reviews is None or reviews == {}:
         return jsonify({"error": "Not found"}), 404
     total = []
     for review in reviews.values():
-        review = review.to_dict()
-        if review['place_id'] == place_id:
-            total.append(review)
+        if review.place_id == place_id:
+            total.append(review.to_dict())
     return jsonify(total)
 
 
@@ -46,21 +49,24 @@ def del_review(review_id):
     return jsonify({}), 200
 
 
-@app_views.route('/<place_id>/reviews', methods=['POST'], strict_slashes=False)
+@app_views.route('places/<place_id>/reviews',
+                 methods=['POST'], strict_slashes=False)
 def create_review(place_id):
     """Create a new review."""
+    place = storage.get(Place, place_id)
+    if place is None or place == {}:
+        return jsonify({"error": "Not found"}), 404
+
     try:
         data = request.get_json()
     except Exception as e:
         return jsonify({"error": "Not a JSON"}), 400
-    if not data or data == {}:
-        return jsonify({"error": "Not a JSON"}), 400
-    if 'user_id' not in data:
-        return jsonify({"error": "Missing user_id"}), 400
-    if 'text' not in data:
-        return jsonify({"error": "Missing text"}), 400
-    data['place_id'] = place_id
-    new = Review(**data)
+    if 'name' not in data:
+        return jsonify({"error": "Missing name"}), 400
+    new_data = (data.copy())
+    new_data['place_id'] = place_id
+    print(new_data)
+    new = Review(**new_data)
     new.save()
     return jsonify(new.to_dict()), 201
 
@@ -78,8 +84,7 @@ def update_review(review_id):
     if not data:
         return jsonify({"error": "Not a JSON"}), 400
     for key, value in data.items():
-        if key not in ['id', 'created_at', 'updated_at',
-                       'user_id', 'place_id']:
+        if key not in ['id', 'created_at', 'updated_at']:
             setattr(review, key, value)
     review.save()
     return jsonify(review.to_dict()), 200
